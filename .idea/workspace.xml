@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="dfe4fb95-7f59-4dda-b075-2aef016cce8d" name="Default Changelist" comment="[add] add models">
-      <change afterPath="$PROJECT_DIR$/.idea/APIComments.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="dfe4fb95-7f59-4dda-b075-2aef016cce8d" name="Default Changelist" comment="[add] add models" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -116,7 +112,7 @@
       <workItem from="1575255354136" duration="3633000" />
       <workItem from="1576459261013" duration="15491000" />
       <workItem from="1576508857802" duration="1015000" />
-      <workItem from="1576511105277" duration="1546000" />
+      <workItem from="1576511105277" duration="3366000" />
     </task>
     <task id="LOCAL-00001" summary="[add] add models">
       <created>1576491743453</created>
@@ -144,10 +140,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="552" y="178" key="#HTTP_Proxy/0.0.1920.1040@0.0.1920.1040" timestamp="1576512163801" />
-    <state x="461" y="162" key="SettingsEditor" timestamp="1576513038726">
+    <state x="461" y="162" key="SettingsEditor" timestamp="1576514647460">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="461" y="162" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1576513038726" />
+    <state x="461" y="162" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1576514647460" />
     <state x="640" y="344" key="com.intellij.ide.util.TipDialog" timestamp="1576511965795">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
