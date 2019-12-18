@@ -139,28 +139,6 @@ public class ClassExtractor {
         return packageName;
     }
 
-    public static List<String> packageNameContainer = new ArrayList<>();
-
-    public static List<String> readPackageName(){
-        String fileName ="C:\\Users\\attenton\\Desktop\\PackageName.txt";
-        List<String> ret= new ArrayList<>();
-        try {
-            FileReader fileReader = new FileReader(fileName);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            String line = bufferedReader.readLine();
-            while (line != null) {
-//                System.out.println(line);
-                ret.add(line);
-                line = bufferedReader.readLine();
-            }
-            bufferedReader.close();
-            fileReader.close();
-        }
-        catch (Exception e){
-            e.printStackTrace();
-        }
-        return ret;
-    }
 
     private static void cleanAll() {
         System.out.println("start clean");
@@ -181,7 +159,6 @@ public class ClassExtractor {
         classModelSet.clear();
         System.out.println("------finish-----------");
     }
-    public static String path = "C:\\D\\Document\\Research\\APIDrective\\src";
 
     public static void main(String args[]) throws Exception{
         cleanAll();
@@ -189,11 +166,9 @@ public class ClassExtractor {
         JavaParser javaParser = new JavaParser();
         TypeSolver reflectionTypeSolver = new ReflectionTypeSolver(false);
         reflectionTypeSolver.setParent(reflectionTypeSolver);
-        CombinedTypeSolver combinedSolver = new CombinedTypeSolver();
-        combinedSolver.add(reflectionTypeSolver);
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(reflectionTypeSolver);
         javaParser.getParserConfiguration().setSymbolResolver(symbolSolver);
-        File projectDir = new File(path);
+        File projectDir = new File(ImportPath);
         List<String> pathList = GetJavaFiles.listClasses(projectDir);
         for(String path : pathList) {
             try {
