@@ -37,35 +37,42 @@ public class MethodExtractor {
                 ResolvedMethodDeclaration resolvedMethodDeclaration = methodDeclaration.resolve();
                 String methodName;
                 String belongClassName = "";
+                String full_delcaration = "";
                 try {
                     ClassOrInterfaceDeclaration parentClass = (ClassOrInterfaceDeclaration) methodDeclaration.getParentNode().get();
-                    belongClassName = parentClass.resolve().getQualifiedName();
+                    belongClassName = parentClass.getFullyQualifiedName().get();
+                    System.out.println("className: " + belongClassName);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 try {
-                    methodName = resolvedMethodDeclaration.getQualifiedSignature();
+//                    methodName = resolvedMethodDeclaration.getQualifiedSignature();
+//                    methodName = resolvedMethodDeclaration.getQualifiedSignature();
+                    full_delcaration = methodDeclaration.getDeclarationAsString();
+                    System.out.println("methodName: \n" + full_delcaration);
                 } catch (UnsolvedSymbolException e) {
-                    methodName = (getMethodName(methodDeclaration.getTokenRange().get().toString(), belongClassName, methodDeclaration.getName().toString()));
+//                    methodName = (getMethodName(methodDeclaration.getTokenRange().get().toString(), belongClassName, methodDeclaration.getName().toString()));
                 }
 
-                addRelationModelList(methodName, belongClassName, BELONGTO);
+//                addRelationModelList(methodName, belongClassName, BELONGTO);
 
                 StringBuilder declare = new StringBuilder();
                 String codeString = methodDeclaration.toString();
 
                 String commentString = "";
 
-                EnumSet<Modifier> modifiers = methodDeclaration.getModifiers();
-                for (Modifier m : modifiers) {
-                    declare.append(m.asString()).append(" ");
-                }
+//                EnumSet<Modifier> modifiers = methodDeclaration.getModifiers();
+//                for (Modifier m : modifiers) {
+//                    declare.append(m.asString()).append(" ");
+//                }
                 Type typeReturn = methodDeclaration.getType();
                 declare.append(typeReturn.toString()).append(" ");
                 declare.append(methodDeclaration.getName()).append("(");
                 List<Parameter> parameterList = methodDeclaration.getParameters();
                 int i = 0;
+//                System.out.println("parameterList: \n" + parameterList.toString());
                 for (Parameter p : parameterList) {
+                    System.out.println("Parameter: " + p.toString());
                     declare.append(p);
                     if (i != parameterList.size() - 1) {
                         declare.append(" ");
@@ -78,31 +85,32 @@ public class MethodExtractor {
                     declare.append(" throw ");
                 }
                 for (ReferenceType t : thrownExceptions) {
-                    declare.append(t.toString()).append(" ");
+                    System.out.println("thrownExceptions： " + t.toString());
+//                    declare.append(t.toString()).append(" ");
                 }
-                List<BlockComment> blockCommentList = methodDeclaration.getChildNodesByType(BlockComment.class);
-                List<String> insideComment = new ArrayList<>();
-                for (BlockComment blockComment : blockCommentList) {
-                    insideComment.add(blockComment.toString());
-                }
-                List<LineComment> lineCommentList = methodDeclaration.getChildNodesByType(LineComment.class);
-                for (LineComment lineComment : lineCommentList) {
-                    insideComment.add(lineComment.toString());
-                }
-                Optional<JavadocComment> commentOptional = methodDeclaration.getJavadocComment();
-                if (commentOptional.isPresent()) {
-                    JavadocComment comment = commentOptional.get();
-                    commentString = comment.getContent();
-                }
-                List<StringLiteralExpr> stringLiteralExprList = methodDeclaration.getChildNodesByType(StringLiteralExpr.class);
-                List<String> literalStringList = new ArrayList<>();
-                for (StringLiteralExpr stringLiteralExpr : stringLiteralExprList) {
-                    String v = stringLiteralExpr.getValue();
-                    if (!v.equals("") && (!v.matches("-?[0-9]+.*[0-9]*") && (!v.equals(".class") && (!v.equals("class") && (v.length() > 1))))) {
-                        literalStringList.add(v);
-                    }
-                }
-                addMethodEntityModelList(declare.toString(), methodName, codeString, typeReturn, commentString, insideComment, modifiers, thrownExceptions, literalStringList);
+//                List<BlockComment> blockCommentList = methodDeclaration.getChildNodesByType(BlockComment.class);
+//                List<String> insideComment = new ArrayList<>();
+//                for (BlockComment blockComment : blockCommentList) {
+//                    insideComment.add(blockComment.toString());
+//                }
+//                List<LineComment> lineCommentList = methodDeclaration.getChildNodesByType(LineComment.class);
+//                for (LineComment lineComment : lineCommentList) {
+//                    insideComment.add(lineComment.toString());
+//                }
+//                Optional<JavadocComment> commentOptional = methodDeclaration.getJavadocComment();
+//                if (commentOptional.isPresent()) {
+//                    JavadocComment comment = commentOptional.get();
+//                    commentString = comment.getContent();
+//                }
+//                List<StringLiteralExpr> stringLiteralExprList = methodDeclaration.getChildNodesByType(StringLiteralExpr.class);
+//                List<String> literalStringList = new ArrayList<>();
+//                for (StringLiteralExpr stringLiteralExpr : stringLiteralExprList) {
+//                    String v = stringLiteralExpr.getValue();
+//                    if (!v.equals("") && (!v.matches("-?[0-9]+.*[0-9]*") && (!v.equals(".class") && (!v.equals("class") && (v.length() > 1))))) {
+//                        literalStringList.add(v);
+//                    }
+//                }
+//                addMethodEntityModelList(declare.toString(), methodName, codeString, typeReturn, commentString, insideComment, modifiers, thrownExceptions, literalStringList);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -110,7 +118,7 @@ public class MethodExtractor {
     }
 
     public static void main(String args[]) throws Exception{
-        cleanAll();
+//        cleanAll();
         packageNameContainer = readPackageName();
         JavaParser javaParser = new JavaParser();
         TypeSolver reflectionTypeSolver = new ReflectionTypeSolver(false);
@@ -135,6 +143,6 @@ public class MethodExtractor {
                 e.printStackTrace();
             }
         }
-        startWrite();
+//        startWrite();
     }
 }

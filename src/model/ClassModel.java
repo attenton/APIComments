@@ -6,7 +6,7 @@ public class ClassModel {
     private String qualified_name;
     private Integer type;
     private String code = "";
-
+    private String name = "";
     private String comment;
     private String commentList;
 
@@ -35,6 +35,14 @@ public class ClassModel {
 
     public void setQualified_name(String qualified_name) {
         this.qualified_name = qualified_name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Integer getType() {

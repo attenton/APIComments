@@ -51,12 +51,13 @@ public class ClassExtractor {
         entityModelSet.add(entityModel);
     }
 
-    private static void addClassModle(String classOrInterfaceName, Integer type, String code, String class_comment, List<Comment> AllComment){
+    private static void addClassModle(String classOrInterfaceName, String name, Integer type, String code, String class_comment, List<Comment> AllComment){
         recordName.add(classOrInterfaceName);
 
         ClassModel classyModel = new ClassModel();
 //        classOrInterfaceName = classOrInterfaceName.replace(" ", "");
         classyModel.setQualified_name(classOrInterfaceName);
+        classyModel.setName(name);
         classyModel.setCode(code);
         classyModel.setType(type);
         classyModel.setComment(class_comment);
@@ -94,10 +95,10 @@ public class ClassExtractor {
                 System.out.println(Strings.repeat("=", classOrInterfaceName.length()));
                 if (isInterface) {
                     System.out.println("interface " + classOrInterfaceName);
-                    addClassModle(classOrInterfaceName, INTERFACE_ENTITY, classOrInterfaceDeclaration.toString(), class_comment, commentList);
+                    addClassModle(classOrInterfaceName, name, INTERFACE_ENTITY, classOrInterfaceDeclaration.toString(), class_comment, commentList);
                 } else {
                     System.out.println("Class " + classOrInterfaceName);
-                    addClassModle(classOrInterfaceName, CLASS_ENTITY, classOrInterfaceDeclaration.toString(), class_comment, commentList);
+                    addClassModle(classOrInterfaceName, name, CLASS_ENTITY, classOrInterfaceDeclaration.toString(), class_comment, commentList);
                 }
                 if (!packageName.equals("")) addRelationModelList(classOrInterfaceName, packageName, BELONGTO);
                 List<ClassOrInterfaceType> extendedTypeList = classOrInterfaceDeclaration.getExtendedTypes();
