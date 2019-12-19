@@ -6,19 +6,20 @@ import java.util.regex.Pattern;
 public class testReg {
     public static void main(String[] args) {
         // 被测试内容
-        String str = "/**\n" +
-                "     * A wrapper class that exposes only the ScheduledExecutorService\n" +
-                "     * methods of a ScheduledExecutorService implementation.\n" +
-                "     */\n" +
-                "    class DelegatedScheduledExecutorService\n" +
-                "            extends DelegatedExecutorService\n" +
-                "            implements ScheduledExecutorService {";
+        String str = "public abstract Iterator<E> iterator()";
+//                "     * A wrapper class that exposes only the ScheduledExecutorService\n" +
+//                "     * methods of a ScheduledExecutorService implementation.\n" +
+//                "     */\n" +
+//                "    class DelegatedScheduledExecutorService\n" +
+//                "            extends DelegatedExecutorService\n" +
+//                "            implements ScheduledExecutorService {";
 //        String str = "/* Subtask " +
 //                "constructor" +
 //                "*/IntCumulateTask(IntCumulateTask parent, IntBinaryOperator function, int[] array, int origin, int fence, int threshold, int lo, int hi) {sdfadsfsdfasdfwe{";
 
         // 正则表达式
-        String reg = "(private|static|public|abstract|final|class)[\\sa-zA-Z0-9,.<>]*?(class|interface){0,1}[\\sa-zA-Z0-9,.<>]*?\\{{1}";
+//        String reg = "(private|static|public|abstract|final|class)[\\sa-zA-Z0-9,.<>]*?(class|interface){0,1}[\\sa-zA-Z0-9,.<>]*?\\{{1}";
+        String reg = "\\w+\\(((\\w+\\s\\w+,\\s)*\\w+\\s\\w+)*\\)";
 
         //修改上方正则表达式和测试内容点击运行就可以在线进行测试， 也可以修改下方代码
 
