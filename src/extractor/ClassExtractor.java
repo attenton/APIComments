@@ -3,6 +3,7 @@ package extractor;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
@@ -11,7 +12,11 @@ import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
+import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
+import com.github.javaparser.resolution.types.ResolvedReferenceType;
+import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
@@ -142,24 +147,48 @@ public class ClassExtractor {
                     }
                 }
                 // add field
-//                List<FieldDeclaration> fieldDeclarationList = classOrInterfaceDeclaration.getFields();
-//                for (FieldDeclaration fieldDeclaration : fieldDeclarationList) {
-//                    List<VariableDeclarator> variables = fieldDeclaration.getVariables();
-//                    for (VariableDeclarator v : variables) {
-//                        ResolvedValueDeclaration d = v.resolve();
-//                        String valTypeName = d.getType().asReferenceType().getQualifiedName();
-//                        System.out.println("field: " + valTypeName);
-////                        String valTypeName = getVariableTypeName(v);
-////                        FieldModel fieldModel = new FieldModel();
-////                        fieldModel.setId(fieldId);
-////                        fieldModel.setField_type(valTypeName);
-////                        fieldModel.setField_name(d.getName());
-////                        addFieldRelationModelList(classOrInterfaceName, fieldId.toString(), Field_In_Class);
-////                        fieldModelArrayList.add(fieldModel);
-////                        fieldId++;
-//
-//                    }
-//                }
+                List<FieldDeclaration> fieldDeclarationList = classOrInterfaceDeclaration.getFields();
+                for (FieldDeclaration fieldDeclaration : fieldDeclarationList) {
+                    System.out.println("fieldDeclaration: " + fieldDeclaration.getModifiers());
+                    List<Modifier> modifierList = fieldDeclaration.getModifiers();
+                    StringBuilder declaration = new StringBuilder();
+                    String comment = "";
+
+                    for(Modifier m : modifierList){
+                        declaration.append(m.toString());
+                        System.out.println("modifierList: " +m.toString());
+                    }
+                    List<VariableDeclarator> variables = fieldDeclaration.getVariables();
+                    for (VariableDeclarator v : variables) {
+                        ResolvedValueDeclaration d = v.resolve();
+//                        System.out.println("fieldName: " + d.getName());
+//                        System.out.println("fieldAll: " + v.toString());
+                        String valTypeName = "";
+                        try {
+                            valTypeName = d.getType().asReferenceType().getQualifiedName();
+                        } catch (Exception e1) {
+                            try {
+                                valTypeName = ((ResolvedPrimitiveType) d.getType()).name().toLowerCase();
+                            } catch (Exception e2) {
+                                valTypeName = v.getTypeAsString();
+                            }
+                        }
+                        declaration.append(valTypeName);
+                        declaration.append(" ");
+                        declaration.append(v.toString());
+                        System.out.println("declaration: " + declaration);
+                        comment = fieldDeclaration.toString().replace(declaration.toString()+";", "");
+                        FieldModel fieldModel = new FieldModel();
+                        fieldModel.setId(fieldId);
+                        fieldModel.setField_type(valTypeName);
+                        fieldModel.setField_name(d.getName());
+                        fieldModel.setFull_declaration(declaration.toString());
+                        fieldModel.setComment(comment);
+                        addFieldRelationModelList(classOrInterfaceName, fieldId.toString(), Field_In_Class);
+                        fieldModelArrayList.add(fieldModel);
+                        fieldId++;
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -185,6 +214,8 @@ public class ClassExtractor {
         relationModelList.clear();
         entityModelSet.clear();
         recordName.clear();
+        fieldModelArrayList.clear();
+        fieldRelationModelList.clear();
         System.out.println("clean finish");
     }
 
@@ -197,6 +228,10 @@ public class ClassExtractor {
         entityModelSet.clear();
         JSONWriter.writeModelListToJson(temp + "ClassOrInterfaces.json", classModelSet);
         classModelSet.clear();
+        JSONWriter.writeModelListToJson(temp + "FieldsInClass.json", fieldModelArrayList);
+        fieldModelArrayList.clear();
+        JSONWriter.writeModelListToJson(temp + "FieldsAndClassRelations.json", fieldRelationModelList);
+        fieldRelationModelList.clear();
         System.out.println("------finish-----------");
     }
 
@@ -205,7 +240,9 @@ public class ClassExtractor {
         packageNameContainer = readPackageName();
         JavaParser javaParser = new JavaParser();
         TypeSolver reflectionTypeSolver = new ReflectionTypeSolver(false);
-        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(reflectionTypeSolver);
+        CombinedTypeSolver combinedSolver = new CombinedTypeSolver();
+        combinedSolver.add(reflectionTypeSolver);
+        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
         javaParser.getParserConfiguration().setSymbolResolver(symbolSolver);
         File projectDir = new File(ImportPath);
         List<String> pathList = GetJavaFiles.listClasses(projectDir);
