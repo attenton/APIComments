@@ -42,7 +42,7 @@ public class testGetMethodName {
     public static String ImportPath = "C:\\D\\Document\\Research\\APIDrective\\src\\java\\util\\AbstractCollection.java";
 
     public static void main(String args[]) throws Exception{
-        String path = "C:\\D\\Document\\Research\\APIDrective\\src\\java\\util\\AbstractCollection.java";
+        String path = "C:\\D\\Document\\Research\\src\\java\\util\\AbstractCollection.java";
         JavaParser javaParser = new JavaParser();
         TypeSolver reflectionTypeSolver = new ReflectionTypeSolver(false);
         reflectionTypeSolver.setParent(reflectionTypeSolver);
