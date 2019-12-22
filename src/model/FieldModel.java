@@ -5,6 +5,7 @@ public class FieldModel {
     private String field_type;
     private String field_name;
     private String full_declaration;
+    private String comment;
 
     public FieldModel() {
     }
@@ -34,10 +35,18 @@ public class FieldModel {
     }
 
     public void setFull_declaration(String full_declaration) {
-        this.field_name = full_declaration;
+        this.full_declaration = full_declaration;
     }
 
     public String getFull_declaration() {
         return full_declaration;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getComment() {
+        return comment;
     }
 }

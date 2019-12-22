@@ -3,12 +3,20 @@ package extractor;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.PrimitiveType;
+import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
+import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
+import com.github.javaparser.resolution.types.ResolvedReferenceType;
+import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
@@ -17,6 +25,7 @@ import com.google.common.base.Strings;
 import com.sun.org.apache.xerces.internal.impl.xs.identity.Selector;
 import model.ClassModel;
 import model.EntityModel;
+import model.FieldModel;
 import model.RelationModel;
 import utils.GetJavaFiles;
 import utils.JSONWriter;
@@ -38,6 +47,9 @@ public class ClassExtractor {
     private static Set<ClassModel> classModelSet = new HashSet<>();
     private static Set<String> recordName = new HashSet<>();
     private static List<RelationModel> relationModelList = new ArrayList<>();
+    private static List<FieldModel> fieldModelArrayList = new ArrayList<>();
+    private static List<RelationModel> fieldRelationModelList = new ArrayList<>();
+    private static Integer fieldId = 1;
 
     private static void addEntityModelList(String qualifiedName, Integer type, String code, String comment) {
         recordName.add(qualifiedName);
@@ -74,6 +86,19 @@ public class ClassExtractor {
             relationModel.setRelation_type(relationType);
             relationModel.setEnd_name(endName);
             relationModelList.add(relationModel);
+        }
+    }
+
+    private static void addFieldRelationModelList(String startName, String endName, Integer relationType) {
+        startName = startName.replace("\n", "");
+        if ((!startName.equals("")) && (!endName.equals(""))) {
+            RelationModel relationModel = new RelationModel();
+            startName = startName.replace(", ", ",");
+            endName = endName.replace(", ", ",");
+            relationModel.setStart_name(startName);
+            relationModel.setRelation_type(relationType);
+            relationModel.setEnd_name(endName);
+            fieldRelationModelList.add(relationModel);
         }
     }
 
@@ -121,6 +146,49 @@ public class ClassExtractor {
                         e.printStackTrace();
                     }
                 }
+                // add field
+                List<FieldDeclaration> fieldDeclarationList = classOrInterfaceDeclaration.getFields();
+                for (FieldDeclaration fieldDeclaration : fieldDeclarationList) {
+                    System.out.println("fieldDeclaration: " + fieldDeclaration.getModifiers());
+                    List<Modifier> modifierList = fieldDeclaration.getModifiers();
+                    StringBuilder declaration = new StringBuilder();
+                    String comment = "";
+
+                    for(Modifier m : modifierList){
+                        declaration.append(m.toString());
+                        System.out.println("modifierList: " +m.toString());
+                    }
+                    List<VariableDeclarator> variables = fieldDeclaration.getVariables();
+                    for (VariableDeclarator v : variables) {
+                        ResolvedValueDeclaration d = v.resolve();
+//                        System.out.println("fieldName: " + d.getName());
+//                        System.out.println("fieldAll: " + v.toString());
+                        String valTypeName = "";
+                        try {
+                            valTypeName = d.getType().asReferenceType().getQualifiedName();
+                        } catch (Exception e1) {
+                            try {
+                                valTypeName = ((ResolvedPrimitiveType) d.getType()).name().toLowerCase();
+                            } catch (Exception e2) {
+                                valTypeName = v.getTypeAsString();
+                            }
+                        }
+                        declaration.append(valTypeName);
+                        declaration.append(" ");
+                        declaration.append(v.toString());
+                        System.out.println("declaration: " + declaration);
+                        comment = fieldDeclaration.toString().replace(declaration.toString()+";", "");
+                        FieldModel fieldModel = new FieldModel();
+                        fieldModel.setId(fieldId);
+                        fieldModel.setField_type(valTypeName);
+                        fieldModel.setField_name(d.getName());
+                        fieldModel.setFull_declaration(declaration.toString());
+                        fieldModel.setComment(comment);
+                        addFieldRelationModelList(classOrInterfaceName, fieldId.toString(), Field_In_Class);
+                        fieldModelArrayList.add(fieldModel);
+                        fieldId++;
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -146,6 +214,8 @@ public class ClassExtractor {
         relationModelList.clear();
         entityModelSet.clear();
         recordName.clear();
+        fieldModelArrayList.clear();
+        fieldRelationModelList.clear();
         System.out.println("clean finish");
     }
 
@@ -158,6 +228,10 @@ public class ClassExtractor {
         entityModelSet.clear();
         JSONWriter.writeModelListToJson(temp + "ClassOrInterfaces.json", classModelSet);
         classModelSet.clear();
+        JSONWriter.writeModelListToJson(temp + "FieldsInClass.json", fieldModelArrayList);
+        fieldModelArrayList.clear();
+        JSONWriter.writeModelListToJson(temp + "FieldsAndClassRelations.json", fieldRelationModelList);
+        fieldRelationModelList.clear();
         System.out.println("------finish-----------");
     }
 
@@ -166,8 +240,9 @@ public class ClassExtractor {
         packageNameContainer = readPackageName();
         JavaParser javaParser = new JavaParser();
         TypeSolver reflectionTypeSolver = new ReflectionTypeSolver(false);
-        reflectionTypeSolver.setParent(reflectionTypeSolver);
-        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(reflectionTypeSolver);
+        CombinedTypeSolver combinedSolver = new CombinedTypeSolver();
+        combinedSolver.add(reflectionTypeSolver);
+        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
         javaParser.getParserConfiguration().setSymbolResolver(symbolSolver);
         File projectDir = new File(ImportPath);
         List<String> pathList = GetJavaFiles.listClasses(projectDir);

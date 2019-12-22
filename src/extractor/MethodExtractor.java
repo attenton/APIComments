@@ -59,11 +59,11 @@ public class MethodExtractor {
                     e.printStackTrace();
                 }
                 try {
-//                    methodName = resolvedMethodDeclaration.getQualifiedSignature();
+                    methodName = methodDeclaration.resolve().getQualifiedSignature();
                     full_delcaration = methodDeclaration.getDeclarationAsString();
                     System.out.println("full_delcaration: " + full_delcaration);
                     System.out.println("belongClassName: " + belongClassName);
-                    methodName = (getMethodName(belongClassName, full_delcaration));
+//                    methodName = (getMethodName(belongClassName, full_delcaration));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -219,7 +219,6 @@ public class MethodExtractor {
         packageNameContainer = readPackageName();
         JavaParser javaParser = new JavaParser();
         TypeSolver reflectionTypeSolver = new ReflectionTypeSolver(false);
-        reflectionTypeSolver.setParent(reflectionTypeSolver);
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(reflectionTypeSolver);
         javaParser.getParserConfiguration().setSymbolResolver(symbolSolver);
         File projectDir = new File(ImportPath);
