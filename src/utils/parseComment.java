@@ -3,6 +3,7 @@ package utils;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseResult;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.javadoc.Javadoc;
@@ -18,6 +19,9 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeS
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+
+import static extractor.MethodExtractor.getAncestorNodeClassOrInterFaceDeclaration;
+import static utils.Tools.BELONGTO;
 
 public class parseComment {
     private static void parseMethodDeclaration(CompilationUnit cu) {
@@ -41,7 +45,24 @@ public class parseComment {
                         System.out.println("javadoc: \n" + javadocComment);
                         List<JavadocDescriptionElement> javadocDescriptionElements = javadocDescription.getElements();
                         System.out.println("splitdescription: ");
+                        String belongClassName = "";
                         for(JavadocDescriptionElement javadocDescriptionElement : javadocDescriptionElements){
+                            if(javadocDescriptionElement.toText().contains("{@inheritDoc}")){
+                                try {
+                                    ClassOrInterfaceDeclaration parentClass = (ClassOrInterfaceDeclaration) getAncestorNodeClassOrInterFaceDeclaration(methodDeclaration, 0);
+                                    if(parentClass != null) {
+                                        belongClassName = parentClass.resolve().getQualifiedName();
+                                        String path = "C:\\D\\Document\\Research\\APIDrective\\src\\";
+                                        String[] path_d = belongClassName.split(".");
+                                        if(
+
+                                        )
+                                        System.out.println("className: " + belongClassName);
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
                             System.out.println(javadocDescriptionElement.toText());
                             System.out.println("----count--");
                         }
@@ -50,7 +71,6 @@ public class parseComment {
                         System.out.println("\n");
                         List<JavadocBlockTag> javadocBlockTags = javadoc.getBlockTags();
                         for(JavadocBlockTag javadocBlockTag : javadocBlockTags){
-                            System.out.println(javadocBlockTag.toString());
                             System.out.println("TagName: " + javadocBlockTag.getTagName());
                             System.out.println("Name:" + javadocBlockTag.getName());
                             System.out.println("Content: " + javadocBlockTag.getContent().toText());

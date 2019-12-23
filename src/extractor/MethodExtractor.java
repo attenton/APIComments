@@ -78,6 +78,13 @@ public class MethodExtractor {
 //                for (Modifier m : modifiers) {
 //                    System.out.println("modifiers: " + m.toString());
 //                }
+//                String description = "";
+//                Optional<Javadoc> javadocOptional = methodDeclaration.getJavadoc();
+//                if(javadocOptional.isPresent()){
+//                    Javadoc javadoc = javadocOptional.get();
+//                    description = javadoc.getDescription().toText();
+//                    if(description.contains("{@inheritDoc}")) containsInheritdoc = true;
+//                }
                 Type typeReturn = methodDeclaration.getType();
                 List<ReferenceType> thrownExceptions = methodDeclaration.getThrownExceptions();
                 List<Parameter> parameterList = methodDeclaration.getParameters();
@@ -176,7 +183,7 @@ public class MethodExtractor {
         return result;
     }
 
-    private static ClassOrInterfaceDeclaration getAncestorNodeClassOrInterFaceDeclaration(Node methodDeclaration, Integer recursionCount){
+    public static ClassOrInterfaceDeclaration getAncestorNodeClassOrInterFaceDeclaration(Node methodDeclaration, Integer recursionCount){
         Optional<Node> parent = methodDeclaration.getParentNode();
         if(parent.isPresent()) {
             if (parent.get() instanceof ClassOrInterfaceDeclaration)

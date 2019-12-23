@@ -114,6 +114,7 @@ public class ClassExtractor {
                 Optional<String> classOrInterfaceNameOptional = classOrInterfaceDeclaration.getFullyQualifiedName();
                 if(classOrInterfaceNameOptional.isPresent()) classOrInterfaceName = classOrInterfaceDeclaration.getFullyQualifiedName().get();
                 boolean isInterface = classOrInterfaceDeclaration.isInterface();
+                boolean containsInheritdoc = false;
                 Optional<Comment> commentOptional = classOrInterfaceDeclaration.getComment();
                 List<Comment> commentList = classOrInterfaceDeclaration.getAllContainedComments();
                 if (commentOptional.isPresent()) {
@@ -152,9 +153,7 @@ public class ClassExtractor {
                 if(javadocOptional.isPresent()){
                     Javadoc javadoc = javadocOptional.get();
                     description = javadoc.getDescription().toText();
-                    if(description.contains("{@inheritDoc}")){
-
-                    }
+                    if(description.contains("{@inheritDoc}")) containsInheritdoc = true;
                 }
                 // add field
                 List<FieldDeclaration> fieldDeclarationList = classOrInterfaceDeclaration.getFields();
@@ -204,6 +203,26 @@ public class ClassExtractor {
             e.printStackTrace();
         }
     }
+
+//    private static String resolveInheritdoc(ClassOrInterfaceDeclaration classOrInterfaceDeclaration, Integer recursion){
+//        Optional<Javadoc> javadocOptional = classOrInterfaceDeclaration.getJavadoc();
+//        String description = "";
+//        if(javadocOptional.isPresent()){
+//            Javadoc javadoc = javadocOptional.get();
+//            description = javadoc.getDescription().toText();
+//            if(description.contains("{@inheritDoc}")){
+//                List<ClassOrInterfaceType> implementedTypeList = classOrInterfaceDeclaration.getImplementedTypes();
+//                for (ClassOrInterfaceType implementedType : implementedTypeList) {
+//                    try {
+//                        String interfaceName = implementedType.resolve().getQualifiedName();
+//                        Optional<Javadoc> interfaceNameOptional = implementedType.resolve().getJavadoc();
+//                    }catch (Exception e){
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     private static String parsePackage(CompilationUnit cu) {
         String packageName = "";
