@@ -5,10 +5,10 @@ import java.util.List;
 public class ClassModel {
     private String qualified_name;
     private Integer type;
-    private String code = "";
+    private String description = "";
     private String name = "";
     private String comment;
-    private String commentList;
+//    private String commentList;
 
     public String getComment() {
         return comment;
@@ -18,13 +18,13 @@ public class ClassModel {
         this.comment = comment;
     }
 
-    public String getCommentList() {
-        return commentList;
-    }
+//    public String getCommentList() {
+//        return commentList;
+//    }
 
-    public void setCommentList(String commentList) {
-        this.commentList = commentList;
-    }
+//    public void setCommentList(String commentList) {
+//        this.commentList = commentList;
+//    }
 
     public ClassModel() {
     }
@@ -53,12 +53,12 @@ public class ClassModel {
         this.type = type;
     }
 
-    public String getCode() {
-        return code;
+    public String getDescription() {
+        return description;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
 

@@ -13,6 +13,7 @@ import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
+import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
@@ -70,7 +71,7 @@ public class ClassExtractor {
 //        classOrInterfaceName = classOrInterfaceName.replace(" ", "");
         classyModel.setQualified_name(classOrInterfaceName);
         classyModel.setName(name);
-        classyModel.setCode(code);
+        classyModel.setDescription(code);
         classyModel.setType(type);
         classyModel.setComment(class_comment);
         classModelSet.add(classyModel);
@@ -108,6 +109,7 @@ public class ClassExtractor {
             for (ClassOrInterfaceDeclaration classOrInterfaceDeclaration : classOrInterfaceDeclarationList) {
                 String class_comment = "";
                 String classOrInterfaceName = "";
+                String description = "";
                 String name = classOrInterfaceDeclaration.getName().asString();
                 Optional<String> classOrInterfaceNameOptional = classOrInterfaceDeclaration.getFullyQualifiedName();
                 if(classOrInterfaceNameOptional.isPresent()) classOrInterfaceName = classOrInterfaceDeclaration.getFullyQualifiedName().get();
@@ -120,10 +122,10 @@ public class ClassExtractor {
                 System.out.println(Strings.repeat("=", classOrInterfaceName.length()));
                 if (isInterface) {
                     System.out.println("interface " + classOrInterfaceName);
-                    addClassModle(classOrInterfaceName, name, INTERFACE_ENTITY, classOrInterfaceDeclaration.toString(), class_comment, commentList);
+                    addClassModle(classOrInterfaceName, name, INTERFACE_ENTITY, description, class_comment, commentList);
                 } else {
                     System.out.println("Class " + classOrInterfaceName);
-                    addClassModle(classOrInterfaceName, name, CLASS_ENTITY, classOrInterfaceDeclaration.toString(), class_comment, commentList);
+                    addClassModle(classOrInterfaceName, name, CLASS_ENTITY, description, class_comment, commentList);
                 }
                 if (!packageName.equals("")) addRelationModelList(classOrInterfaceName, packageName, BELONGTO);
                 List<ClassOrInterfaceType> extendedTypeList = classOrInterfaceDeclaration.getExtendedTypes();
@@ -144,6 +146,14 @@ public class ClassExtractor {
                         System.out.println("implemented " + interfaceName);
                     }catch (Exception e){
                         e.printStackTrace();
+                    }
+                }
+                Optional<Javadoc> javadocOptional = classOrInterfaceDeclaration.getJavadoc();
+                if(javadocOptional.isPresent()){
+                    Javadoc javadoc = javadocOptional.get();
+                    description = javadoc.getDescription().toText();
+                    if(description.contains("{@inheritDoc}")){
+
                     }
                 }
                 // add field

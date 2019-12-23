@@ -8,7 +8,7 @@ public class MethodModel {
     private Integer type;
     private String type_return;
     private String full_declaration;
-    private String code;
+    private String description;
     private String comment;
     private List<String> inside_comment;
     private List<String> thrown_exceptions;
@@ -73,9 +73,9 @@ public class MethodModel {
 
     public void setComment(String comment) { this.comment = comment; }
 
-    public String getCode() { return code; }
+    public String getDescription() { return description; }
 
-    public void setCode(String code) { this.code = code; }
+    public void setDescription(String description) { this.description = description; }
 
     public Integer getType() { return type; }
 

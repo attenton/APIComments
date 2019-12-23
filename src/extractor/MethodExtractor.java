@@ -14,6 +14,7 @@ import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.expr.StringLiteralExpr;
 import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.Type;
+import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.resolution.UnsolvedSymbolException;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
@@ -88,6 +89,7 @@ public class MethodExtractor {
                     addRelationModelList(methodName, t.toString(), EXCEPTION_THROW);
 //                    System.out.println("thrownExceptions： " + t.toString());
                 }
+//                List<JavadocComment>
                 List<BlockComment> blockCommentList = methodDeclaration.getChildNodesByType(BlockComment.class);
                 List<String> insideComment = new ArrayList<>();
                 for (BlockComment blockComment : blockCommentList) {
@@ -143,7 +145,7 @@ public class MethodExtractor {
         methodModel.setString_literal_expr(stringLiteralExpr);
         methodModel.setType_return(typeReturn.toString());
         methodModel.setComment(comment);
-        methodModel.setCode(code);
+        methodModel.setDescription(code);
         methodModel.setInside_comment(insideComment);
         List<String> thrownExceptionList = new ArrayList<>();
         List<String> modifierNameList = new ArrayList<>();
