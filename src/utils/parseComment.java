@@ -54,9 +54,6 @@ public class parseComment {
                                         belongClassName = parentClass.resolve().getQualifiedName();
                                         String path = "C:\\D\\Document\\Research\\APIDrective\\src\\";
                                         String[] path_d = belongClassName.split(".");
-                                        if(
-
-                                        )
                                         System.out.println("className: " + belongClassName);
                                     }
                                 } catch (Exception e) {
