@@ -31,15 +31,18 @@ import java.io.File;
 import java.util.*;
 
 import static extractor.MethodExtractor.getAncestorNodeClassOrInterFaceDeclaration;
+import static extractor.MethodExtractor.getMethodName;
 import static utils.Tools.*;
 import static utils.Tools.packageNameContainer;
 
 public class FirstLevelExtractor {
-    private static Set<TempMethod> methodModelSet = new HashSet<>();
-    private static Set<TempClass> classModelSet = new HashSet<>();
-    private static Set<Pair<String, Integer>> classId = new HashSet<>();
-    private static Set<Pair<String, String>> classMethod = new HashSet<>();
+    private static List<TempMethod> methodModelSet = new ArrayList<>();
+    private static List<TempClass> classModelSet = new ArrayList<>();
+    private static HashMap<String, Integer> classId = new HashMap<>();
+    private static HashMap<String, Integer> methodId = new HashMap<>();
+    private static HashMap<String, HashMap<String, String>> classMethod = new HashMap<>();
     private static Integer sId = 0;
+    private static Integer mId = 0;
 
     private static void parseMethod(CompilationUnit cu) {
         List<MethodDeclaration> methodDeclarationList = cu.findAll(MethodDeclaration.class);
@@ -49,7 +52,8 @@ public class FirstLevelExtractor {
                 String methodName = "";
                 String belongClassName = "";
                 String name = "";
-                String full_delcaration = "";
+                String full_declaration = "";
+                System.out.println("=========================");
                 name = methodDeclaration.getName().asString();
                 try {
                     ClassOrInterfaceDeclaration parentClass = (ClassOrInterfaceDeclaration) getAncestorNodeClassOrInterFaceDeclaration(methodDeclaration, 0);
@@ -62,11 +66,15 @@ public class FirstLevelExtractor {
                 }
                 try {
                     methodName = methodDeclaration.resolve().getQualifiedSignature();
-                    full_delcaration = methodDeclaration.getDeclarationAsString();
-                    System.out.println("full_delcaration: " + full_delcaration);
+                    full_declaration = methodDeclaration.getDeclarationAsString();
+                    int end = full_declaration.indexOf(")");
+                    int start = full_declaration.indexOf("(");
+                    String right = full_declaration.substring(start, end+1);
+                    name += right;
+                    System.out.println("full_delcaration: " + full_declaration);
                     System.out.println("belongClassName: " + belongClassName);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    methodName = getMethodName(belongClassName, full_declaration);
                 }
                 List<Pair<String, String>> paramsTag = new ArrayList<>();
                 List<Pair<String, String>> throwsTag = new ArrayList<>();
@@ -82,37 +90,64 @@ public class FirstLevelExtractor {
                         if(tagName.equals("return")){
                             String re = javadocBlockTag.getContent().toText();
                             returnTag.add(re);
-                            System.out.println("TagName: " + javadocBlockTag.getTagName());
-                            System.out.println("Content: " + javadocBlockTag.getContent().toText());
+//                            System.out.println("TagName: " + javadocBlockTag.getTagName());
+//                            System.out.println("Content: " + javadocBlockTag.getContent().toText());
                         }
                         if(tagName.equals("param")){
                             Pair<String, String> re = new Pair<String, String>(javadocBlockTag.getName().get(), javadocBlockTag.getContent().toText());
                             paramsTag.add(re);
-                            System.out.println("TagName: " + javadocBlockTag.getTagName());
-                            System.out.println("Name:" + javadocBlockTag.getName());
-                            System.out.println("Content: " + javadocBlockTag.getContent().toText());
+//                            System.out.println("TagName: " + javadocBlockTag.getTagName());
+//                            System.out.println("Name:" + javadocBlockTag.getName());
+//                            System.out.println("Content: " + javadocBlockTag.getContent().toText());
                         }
-                        if(tagName.equals("param")){
+                        if(tagName.equals("throw")){
                             Pair<String, String> re = new Pair<String, String>(javadocBlockTag.getName().get(), javadocBlockTag.getContent().toText());
                             throwsTag.add(re);
-                            System.out.println("TagName: " + javadocBlockTag.getTagName());
-                            System.out.println("Name:" + javadocBlockTag.getName());
-                            System.out.println("Content: " + javadocBlockTag.getContent().toText());
+//                            System.out.println("TagName: " + javadocBlockTag.getTagName());
+//                            System.out.println("Name:" + javadocBlockTag.getName());
+//                            System.out.println("Content: " + javadocBlockTag.getContent().toText());
                         }
 
                     }
+                }
+                List<ReferenceType> thrownExceptions = methodDeclaration.getThrownExceptions();
+                List<Parameter> parameterList = methodDeclaration.getParameters();
+                List<String> palist = new LinkedList<>();
+                List<String> telist = new LinkedList<>();
+                for (Parameter p : parameterList) {
+                    palist.add(p.toString());
+//                    System.out.println("Parameter: " + p.toString());
+                }
+                for (ReferenceType t : thrownExceptions) {
+                    telist.add(t.asString());
+//                    System.out.println("thrownExceptions： " + t.asString());
                 }
                 TempMethod tempMethod = new TempMethod();
                 tempMethod.setBelongClass(belongClassName);
                 tempMethod.setDescription(description);
                 tempMethod.setMethodName(methodName);
+                System.out.println("methodName: " + methodName);
+                System.out.println("name: " + name);
                 tempMethod.setName(name);
                 tempMethod.setParamsTag(paramsTag);
                 tempMethod.setReturnTag(returnTag);
                 tempMethod.setThrowsTag(throwsTag);
+                tempMethod.setParameter(palist);
+                tempMethod.setThrowException(telist);
                 methodModelSet.add(tempMethod);
-                Pair<String, String> relation = new Pair<String, String>(belongClassName, name);
-                classMethod.add(relation);
+//                methodModelSet.add(tempMethod);
+                HashMap<String, String> method = classMethod.get(belongClassName);
+                if(method == null){
+                    HashMap<String, String> methodAndName = new HashMap<>();
+                    methodAndName.put(name, methodName);
+                    classMethod.put(belongClassName, methodAndName);
+                }
+                else{
+                    method.put(name, methodName);
+                    classMethod.put(belongClassName, method);
+                }
+                methodId.put(methodName, mId);
+                mId++;
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -126,7 +161,7 @@ public class FirstLevelExtractor {
                 String classOrInterfaceName = "";
                 String description = "";
 //                String name = classOrInterfaceDeclaration.getName().asString();
-                List<String> inherit = new ArrayList<>();
+                Queue<String> inherit = new LinkedList<>();
                 Optional<String> classOrInterfaceNameOptional = classOrInterfaceDeclaration.getFullyQualifiedName();
                 if(classOrInterfaceNameOptional.isPresent()) classOrInterfaceName = classOrInterfaceDeclaration.getFullyQualifiedName().get();
                 boolean type = classOrInterfaceDeclaration.isInterface();
@@ -162,8 +197,7 @@ public class FirstLevelExtractor {
                 tempClass.setType(type);
                 tempClass.setName(classOrInterfaceName);
                 classModelSet.add(tempClass);
-                Pair<String, Integer> a = new Pair<>(classOrInterfaceName, sId);
-                classId.add(a);
+                classId.put(classOrInterfaceName, sId);
                 sId++;
             }
         } catch (Exception e) {
@@ -194,8 +228,92 @@ public class FirstLevelExtractor {
                 e.printStackTrace();
             }
         }
+        int count = 0;
+        for(TempMethod tempMethod: methodModelSet){
+            tempMethod.setDescription(getReDescription(tempMethod));
+            methodModelSet.set(count, tempMethod);
+            count++;
+        }
         startWrite();
     }
+
+    private static String getReDescription(TempMethod tempMethod){
+        String description = tempMethod.getDescription();
+        String name = tempMethod.getName();
+        System.out.println("------------------");
+        System.out.println("findname: " + name);
+        System.out.println("finddescription: " + description);
+        System.out.println("findMethod: " + tempMethod.getMethodName());
+        System.out.println("------------------");
+        String belongClass = tempMethod.getBelongClass();
+//        Queue<String> inheritClass = new LinkedList<>();
+        if(description.contains("{@inheritDoc}")){
+            TempClass tempClass= classModelSet.get(classId.get(belongClass));
+            Queue<String> inherits = tempClass.getInherit();
+            while(!inherits.isEmpty()) {
+                String inherit = inherits.poll();
+                System.out.println("ineritClass: " + inherit);
+                if (classMethod.containsKey(inherit)) {
+                    HashMap<String, String> method = classMethod.get(inherit);
+//                System.out.println(method);
+                    if (method.containsKey(name)) {
+                        String methodName = method.get(name);
+                        if (methodName == null) continue;
+                        else {
+                            TempMethod tempMethod1 = methodModelSet.get(methodId.get(methodName));
+                            String description1 = tempMethod1.getDescription();
+                            if (description1.contains("{@inheritDoc}")) {
+                                TempClass tempClass1 = classModelSet.get(classId.get(inherit));
+                                Queue<String> classInherit = tempClass1.getInherit();
+                                inherits.addAll(classInherit);
+                            } else if (!description1.equals("")) {
+                                return description1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return description;
+    }
+
+    private static String getTagDescription(TempMethod tempMethod, Pair<String, String> throwTag){
+            String content = throwTag.getValue();
+            if (content.contains("{inheritDoc}")) {
+                String name = tempMethod.getName();
+                String belongClass = tempMethod.getBelongClass();
+                TempClass tempClass = classModelSet.get(classId.get(belongClass));
+                Queue<String> inherits = tempClass.getInherit();
+                while (!inherits.isEmpty()) {
+                    String inherit = inherits.poll();
+                    System.out.println("ineritClass: " + inherit);
+                    if (classMethod.containsKey(inherit)) {
+                        HashMap<String, String> method = classMethod.get(inherit);
+                        if (method.containsKey(name)) {
+                            String methodName = method.get(name);
+                            if (methodName == null) continue;
+                            else {
+                                TempMethod tempMethod1 = methodModelSet.get(methodId.get(methodName));
+                                List<Pair<String, String>> paramsTags = tempMethod1.getParamsTag();
+                                for (Pair<String, String> param : paramsTags) {
+                                    if (param.getKey().equals(tagName)) {
+                                        if (param.getValue().contains("{inheritDoc}")) {
+                                            TempClass tempClass1 = classModelSet.get(classId.get(inherit));
+                                            Queue<String> classInherit = tempClass1.getInherit();
+                                            inherits.addAll(classInherit);
+                                        } else if (!param.getValue().equals("")) {
+                                            return param.getValue();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        return description;
+    }
+
 
     private static void startWrite() {
         System.out.println("-------start write--------");
@@ -204,10 +322,10 @@ public class FirstLevelExtractor {
         methodModelSet.clear();
         JSONWriter.writeModelListToJson(temp + "ClassAll.json", classModelSet);
         classModelSet.clear();
-        JSONWriter.writeModelListToJson(temp + "ClassId.json", classId);
-        classId.clear();
-        JSONWriter.writeModelListToJson(temp + "classMethod.json", classMethod);
-        classMethod.clear();
+//        JSONWriter.writeModelListToJson(temp + "ClassId.json", classId);
+//        classId.clear();
+//        JSONWriter.writeModelListToJson(temp + "classMethod.json", classMethod);
+//        classMethod.clear();
         System.out.println("------finish-----------");
     }
 }

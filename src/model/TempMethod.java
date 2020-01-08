@@ -11,6 +11,8 @@ public class TempMethod {
     // params name, params description
     private List<Pair<String, String>> paramsTag;
     private List<Pair<String, String>> throwsTag;
+    private List<String> parameter;
+    private List<String> throwException;
     private List<String> returnTag;
     private String belongClass;
 
@@ -25,6 +27,12 @@ public class TempMethod {
 
     public String getName() { return name; }
     public void setName(String name){this.name = name;}
+
+    public List<String> getParameter() { return parameter; }
+    public void setParameter(List<String> parameter){this.parameter = parameter;}
+
+    public List<String> getThrowException() { return throwException; }
+    public void setThrowException(List<String> throwException){this.throwException = throwException;}
 
     public void setParamsTag(List<Pair<String, String>> paramsTag){this.paramsTag = paramsTag;}
     public List<Pair<String, String>> getParamsTag(){return paramsTag;}
