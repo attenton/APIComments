@@ -13,7 +13,7 @@ public class TempMethod {
     private List<Pair<String, String>> throwsTag;
     private List<String> parameter;
     private List<String> throwException;
-    private List<String> returnTag;
+    private String returnValueDescription;
     private String belongClass;
 
     public TempMethod(){
@@ -40,8 +40,8 @@ public class TempMethod {
     public void setThrowsTag(List<Pair<String, String>> throwsTag){this.throwsTag = throwsTag;}
     public List<Pair<String, String>> getThrowsTag(){ return throwsTag; }
 
-    public void setReturnTag(List<String> returnTag){this.returnTag = returnTag;}
-    public List<String> getReturnTag(){ return returnTag; }
+    public void setReturnValueDescription(String returnValueDescription){this.returnValueDescription = returnValueDescription;}
+    public String getReturnValueDescription(){ return returnValueDescription; }
 
     public void setBelongClass(String belongClass){this.belongClass = belongClass;}
     public String getBelongClass(){return belongClass; }

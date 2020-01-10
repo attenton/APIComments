@@ -78,7 +78,7 @@ public class FirstLevelExtractor {
                 }
                 List<Pair<String, String>> paramsTag = new ArrayList<>();
                 List<Pair<String, String>> throwsTag = new ArrayList<>();
-                List<String> returnTag = new ArrayList<>();
+                String ReturnValueDescription;
                 String description = "";
                 Optional<Javadoc> javadocOptional = methodDeclaration.getJavadoc();
                 if(javadocOptional.isPresent()){
@@ -89,7 +89,7 @@ public class FirstLevelExtractor {
                         String tagName = javadocBlockTag.getTagName();
                         if(tagName.equals("return")){
                             String re = javadocBlockTag.getContent().toText();
-                            returnTag.add(re);
+                            ReturnValueDescription = re;
 //                            System.out.println("TagName: " + javadocBlockTag.getTagName());
 //                            System.out.println("Content: " + javadocBlockTag.getContent().toText());
                         }
@@ -258,8 +258,7 @@ public class FirstLevelExtractor {
 //                System.out.println(method);
                     if (method.containsKey(name)) {
                         String methodName = method.get(name);
-                        if (methodName == null) continue;
-                        else {
+                        if (methodName != null) {
                             TempMethod tempMethod1 = methodModelSet.get(methodId.get(methodName));
                             String description1 = tempMethod1.getDescription();
                             if (description1.contains("{@inheritDoc}")) {
@@ -277,33 +276,40 @@ public class FirstLevelExtractor {
         return description;
     }
 
-    private static String getTagDescription(TempMethod tempMethod, Pair<String, String> throwTag){
-            String content = throwTag.getValue();
-            if (content.contains("{inheritDoc}")) {
-                String name = tempMethod.getName();
-                String belongClass = tempMethod.getBelongClass();
-                TempClass tempClass = classModelSet.get(classId.get(belongClass));
-                Queue<String> inherits = tempClass.getInherit();
-                while (!inherits.isEmpty()) {
-                    String inherit = inherits.poll();
-                    System.out.println("ineritClass: " + inherit);
-                    if (classMethod.containsKey(inherit)) {
-                        HashMap<String, String> method = classMethod.get(inherit);
-                        if (method.containsKey(name)) {
-                            String methodName = method.get(name);
-                            if (methodName == null) continue;
-                            else {
-                                TempMethod tempMethod1 = methodModelSet.get(methodId.get(methodName));
-                                List<Pair<String, String>> paramsTags = tempMethod1.getParamsTag();
-                                for (Pair<String, String> param : paramsTags) {
-                                    if (param.getKey().equals(tagName)) {
-                                        if (param.getValue().contains("{inheritDoc}")) {
-                                            TempClass tempClass1 = classModelSet.get(classId.get(inherit));
-                                            Queue<String> classInherit = tempClass1.getInherit();
-                                            inherits.addAll(classInherit);
-                                        } else if (!param.getValue().equals("")) {
-                                            return param.getValue();
-                                        }
+    /*
+     @tagType: 0表示parameter， 1表示throw
+     */
+    private static String getTagDescription(TempMethod tempMethod, Pair<String, String> Tag, Integer tagType){
+        String content = Tag.getValue();
+        if (content.contains("{inheritDoc}")) {
+            String name = tempMethod.getName();
+            String belongClass = tempMethod.getBelongClass();
+            TempClass tempClass = classModelSet.get(classId.get(belongClass));
+            Queue<String> inherits = tempClass.getInherit();
+            String tagName = Tag.getKey();
+            while (!inherits.isEmpty()) {
+                String inherit = inherits.poll();
+                System.out.println("inheritClass: " + inherit);
+                if (classMethod.containsKey(inherit)) {
+                    HashMap<String, String> method = classMethod.get(inherit);
+                    if (method.containsKey(name)) {
+                        String methodName = method.get(name);
+                        if (methodName != null) {
+                            TempMethod tempMethod1 = methodModelSet.get(methodId.get(methodName));
+                            List<Pair<String, String>> Tags = new ArrayList<>();
+                            if(tagType == 0){
+                                Tags = tempMethod1.getParamsTag();
+                            } else if(tagType == 1){
+                                Tags = tempMethod1.getThrowsTag();
+                            }
+                            for (Pair<String, String> tag : Tags) {
+                                if (tag.getKey().equals(tagName)) {
+                                    if (tag.getValue().contains("{inheritDoc}")) {
+                                        TempClass tempClass1 = classModelSet.get(classId.get(inherit));
+                                        Queue<String> classInherit = tempClass1.getInherit();
+                                        inherits.addAll(classInherit);
+                                    } else if (!tag.getValue().equals("")) {
+                                        return tag.getValue();
                                     }
                                 }
                             }
@@ -311,6 +317,46 @@ public class FirstLevelExtractor {
                     }
                 }
             }
+        }
+        return content;
+    }
+
+    private static String getReturnValueDescription(TempMethod tempMethod){
+        String description = tempMethod.getReturnValueDescription();
+        String name = tempMethod.getName();
+        System.out.println("------------------");
+        System.out.println("findname: " + name);
+        System.out.println("finddescription: " + description);
+        System.out.println("findMethod: " + tempMethod.getMethodName());
+        System.out.println("------------------");
+        String belongClass = tempMethod.getBelongClass();
+//        Queue<String> inheritClass = new LinkedList<>();
+        if(description.contains("{@inheritDoc}")){
+            TempClass tempClass= classModelSet.get(classId.get(belongClass));
+            Queue<String> inherits = tempClass.getInherit();
+            while(!inherits.isEmpty()) {
+                String inherit = inherits.poll();
+                System.out.println("ineritClass: " + inherit);
+                if (classMethod.containsKey(inherit)) {
+                    HashMap<String, String> method = classMethod.get(inherit);
+//                System.out.println(method);
+                    if (method.containsKey(name)) {
+                        String methodName = method.get(name);
+                        if (methodName != null) {
+                            TempMethod tempMethod1 = methodModelSet.get(methodId.get(methodName));
+                            String description1 = tempMethod1.getReturnValueDescription();
+                            if (description1.contains("{@inheritDoc}")) {
+                                TempClass tempClass1 = classModelSet.get(classId.get(inherit));
+                                Queue<String> classInherit = tempClass1.getInherit();
+                                inherits.addAll(classInherit);
+                            } else if (!description1.equals("")) {
+                                return description1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return description;
     }
 
