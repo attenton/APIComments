@@ -78,7 +78,7 @@ public class FirstLevelExtractor {
                 }
                 List<Pair<String, String>> paramsTag = new ArrayList<>();
                 List<Pair<String, String>> throwsTag = new ArrayList<>();
-                String ReturnValueDescription;
+                String ReturnValueDescription = "";
                 String description = "";
                 Optional<Javadoc> javadocOptional = methodDeclaration.getJavadoc();
                 if(javadocOptional.isPresent()){
@@ -88,8 +88,8 @@ public class FirstLevelExtractor {
                     for(JavadocBlockTag javadocBlockTag : javadocBlockTags){
                         String tagName = javadocBlockTag.getTagName();
                         if(tagName.equals("return")){
-                            String re = javadocBlockTag.getContent().toText();
-                            ReturnValueDescription = re;
+                            ReturnValueDescription = javadocBlockTag.getContent().toText();
+//                            ReturnValueDescription = re;
 //                            System.out.println("TagName: " + javadocBlockTag.getTagName());
 //                            System.out.println("Content: " + javadocBlockTag.getContent().toText());
                         }
@@ -130,7 +130,7 @@ public class FirstLevelExtractor {
                 System.out.println("name: " + name);
                 tempMethod.setName(name);
                 tempMethod.setParamsTag(paramsTag);
-                tempMethod.setReturnTag(returnTag);
+                tempMethod.setReturnValueDescription(ReturnValueDescription);
                 tempMethod.setThrowsTag(throwsTag);
                 tempMethod.setParameter(palist);
                 tempMethod.setThrowException(telist);
