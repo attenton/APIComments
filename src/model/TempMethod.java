@@ -12,9 +12,11 @@ public class TempMethod {
     private List<Pair<String, String>> paramsTag;
     private List<Pair<String, String>> throwsTag;
     private List<String> parameter;
+    private List<String> parameterTypeList;
     private List<String> throwException;
     private String returnValueDescription;
     private String belongClass;
+    private String returnValueType;
 
     public TempMethod(){
 
@@ -31,6 +33,9 @@ public class TempMethod {
     public List<String> getParameter() { return parameter; }
     public void setParameter(List<String> parameter){this.parameter = parameter;}
 
+    public List<String> getParameterTypeList() { return parameterTypeList; }
+    public void setParameterTypeList(List<String> parameterTypeList){this.parameterTypeList = parameterTypeList;}
+
     public List<String> getThrowException() { return throwException; }
     public void setThrowException(List<String> throwException){this.throwException = throwException;}
 
@@ -46,4 +51,6 @@ public class TempMethod {
     public void setBelongClass(String belongClass){this.belongClass = belongClass;}
     public String getBelongClass(){return belongClass; }
 
+    public void setReturnValueType(String returnValueType){this.returnValueType = returnValueType;}
+    public String getReturnValueType(){return returnValueType; }
 }

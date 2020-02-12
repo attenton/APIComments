@@ -21,6 +21,8 @@ import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.google.common.base.Strings;
 import com.sun.org.apache.xerces.internal.impl.xs.identity.Selector;
@@ -113,6 +115,9 @@ public class ClassExtractor {
                 String name = classOrInterfaceDeclaration.getName().asString();
                 Optional<String> classOrInterfaceNameOptional = classOrInterfaceDeclaration.getFullyQualifiedName();
                 if(classOrInterfaceNameOptional.isPresent()) classOrInterfaceName = classOrInterfaceDeclaration.getFullyQualifiedName().get();
+                if(classOrInterfaceName.equals("java.lang.Object")){
+                    System.out.println(classOrInterfaceName);
+                }
                 boolean isInterface = classOrInterfaceDeclaration.isInterface();
                 boolean containsInheritdoc = false;
                 Optional<Comment> commentOptional = classOrInterfaceDeclaration.getComment();
@@ -193,6 +198,9 @@ public class ClassExtractor {
                         fieldModel.setField_name(d.getName());
                         fieldModel.setFull_declaration(declaration.toString());
                         fieldModel.setComment(comment);
+                        if(fieldId == 282){
+                            System.out.println(fieldId);
+                        }
                         addFieldRelationModelList(classOrInterfaceName, fieldId.toString(), Field_In_Class);
                         fieldModelArrayList.add(fieldModel);
                         fieldId++;
@@ -250,7 +258,8 @@ public class ClassExtractor {
 
     private static void startWrite() {
         System.out.println("-------start write--------");
-        String temp = "C:/D/Document/Research/APIDrective/result/";
+//        String temp = "C:/D/Document/Research/APIDrective/result/";
+        String temp = "C:\\D\\Document\\Research\\APIDrective\\android_result\\";
         JSONWriter.writeModelListToJson(temp + "ClassOrInterfaceAndPackageRelations.json", relationModelList);
         relationModelList.clear();
         JSONWriter.writeModelListToJson(temp + "Packages.json", entityModelSet);
@@ -269,6 +278,8 @@ public class ClassExtractor {
         packageNameContainer = readPackageName();
         JavaParser javaParser = new JavaParser();
         TypeSolver reflectionTypeSolver = new ReflectionTypeSolver(false);
+        TypeSolver javaParserTypeSolver_1 = new JavaParserTypeSolver(new File(ImportPath));
+        reflectionTypeSolver.setParent(javaParserTypeSolver_1);
         CombinedTypeSolver combinedSolver = new CombinedTypeSolver();
         combinedSolver.add(reflectionTypeSolver);
         JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
@@ -282,7 +293,7 @@ public class ClassExtractor {
                     CompilationUnit cu = parseResult.getResult().get();
                     String packageName = parsePackage(cu);
 //                System.out.println(packageName);
-                    if (!packageNameContainer.contains(packageName)) continue;
+//                    if (!packageNameContainer.contains(packageName)) continue;
 //                System.out.println(packageName);
                     parseClassInterface(cu, packageName);
                     System.out.println("\r\n");

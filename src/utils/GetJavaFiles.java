@@ -12,8 +12,7 @@ public class GetJavaFiles {
     }
 
     public static void main(String[] args) {
-//        File projectDir = new File("D:\\实验室\\jedit4.3source.tar\\jedit4.3source");
-        File projectDir = new File("C:\\D\\Document\\Research\\APIDrective\\src\\java\\io");
+        File projectDir = new File("C:\\D\\Document\\Research\\APIDrective\\src");
         System.out.println(listClasses(projectDir));
     }
 }

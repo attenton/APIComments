@@ -16,10 +16,13 @@ import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
 import com.github.javaparser.javadoc.description.JavadocDescription;
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedValueDeclaration;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.model.resolution.TypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 import com.google.common.base.Strings;
 import javafx.util.Pair;
@@ -53,8 +56,14 @@ public class FirstLevelExtractor {
                 String belongClassName = "";
                 String name = "";
                 String full_declaration = "";
+                List<String> parameterTypeList = new ArrayList<>();
                 System.out.println("=========================");
                 name = methodDeclaration.getName().asString();
+                ResolvedMethodDeclaration resolvedMethodDeclaration = methodDeclaration.resolve();
+                String qualified_name = resolvedMethodDeclaration.getQualifiedName();
+                System.out.println("qualified_name");
+                System.out.println(qualified_name);
+                Type typeReturn = methodDeclaration.getType();
                 try {
                     ClassOrInterfaceDeclaration parentClass = (ClassOrInterfaceDeclaration) getAncestorNodeClassOrInterFaceDeclaration(methodDeclaration, 0);
                     if(parentClass != null) {
@@ -70,6 +79,11 @@ public class FirstLevelExtractor {
                     int end = full_declaration.indexOf(")");
                     int start = full_declaration.indexOf("(");
                     String right = full_declaration.substring(start, end+1);
+                    int me_end = methodName.indexOf(")");
+                    int me_start = methodName.indexOf("(");
+                    String parameterString = methodName.substring(me_start+1,me_end);
+                    String[] parameterListString = parameterString.split(",");
+                    parameterTypeList = Arrays.asList(parameterListString);
                     name += right;
                     System.out.println("full_delcaration: " + full_declaration);
                     System.out.println("belongClassName: " + belongClassName);
@@ -115,6 +129,8 @@ public class FirstLevelExtractor {
                 List<String> palist = new LinkedList<>();
                 List<String> telist = new LinkedList<>();
                 for (Parameter p : parameterList) {
+//                    Type rp = p.getType().asClassOrInterfaceType();
+//                    String pname = p.getType().resolve().getQualifiedName();
                     palist.add(p.toString());
 //                    System.out.println("Parameter: " + p.toString());
                 }
@@ -133,7 +149,11 @@ public class FirstLevelExtractor {
                 tempMethod.setReturnValueDescription(ReturnValueDescription);
                 tempMethod.setThrowsTag(throwsTag);
                 tempMethod.setParameter(palist);
+                tempMethod.setParameterTypeList(parameterTypeList);
                 tempMethod.setThrowException(telist);
+                System.out.println("typeReturn.asClassOrInterfaceType().toString()");
+                System.out.println(typeReturn.toString());
+                tempMethod.setReturnValueType(typeReturn.toString());
                 methodModelSet.add(tempMethod);
 //                methodModelSet.add(tempMethod);
                 HashMap<String, String> method = classMethod.get(belongClassName);
@@ -209,7 +229,11 @@ public class FirstLevelExtractor {
         packageNameContainer = readPackageName();
         JavaParser javaParser = new JavaParser();
         TypeSolver reflectionTypeSolver = new ReflectionTypeSolver(false);
-        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(reflectionTypeSolver);
+        TypeSolver javaParserTypeSolver_1 = new JavaParserTypeSolver(new File(ImportPath));
+        reflectionTypeSolver.setParent(javaParserTypeSolver_1);
+        CombinedTypeSolver combinedSolver = new CombinedTypeSolver();
+        combinedSolver.add(reflectionTypeSolver);
+        JavaSymbolSolver symbolSolver = new JavaSymbolSolver(combinedSolver);
         javaParser.getParserConfiguration().setSymbolResolver(symbolSolver);
         File projectDir = new File(ImportPath);
         List<String> pathList = GetJavaFiles.listClasses(projectDir);
@@ -219,7 +243,7 @@ public class FirstLevelExtractor {
                 if (parseResult.getResult().isPresent()) {
                     CompilationUnit cu = parseResult.getResult().get();
                     String packageName = cu.getPackageDeclaration().get().getName().asString();
-                    if (!packageNameContainer.contains(packageName)) continue;
+//                    if (!packageNameContainer.contains(packageName)) continue;
                     parseClass(cu);
                     parseMethod(cu);
                     System.out.println("\r\n");
@@ -232,6 +256,7 @@ public class FirstLevelExtractor {
         for(TempMethod tempMethod: methodModelSet){
             tempMethod.setDescription(getReDescription(tempMethod));
             methodModelSet.set(count, tempMethod);
+//            for()
             count++;
         }
         startWrite();
@@ -363,7 +388,8 @@ public class FirstLevelExtractor {
 
     private static void startWrite() {
         System.out.println("-------start write--------");
-        String temp = "C:/D/Document/Research/APIDrective/result/";
+//        String temp = "C:/D/Document/Research/APIDrective/result/";
+        String temp = "C:\\D\\Document\\Research\\APIDrective\\android_result\\";
         JSONWriter.writeModelListToJson(temp + "MethodAll.json", methodModelSet);
         methodModelSet.clear();
         JSONWriter.writeModelListToJson(temp + "ClassAll.json", classModelSet);
