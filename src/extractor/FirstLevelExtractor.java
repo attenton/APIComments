@@ -63,7 +63,7 @@ public class FirstLevelExtractor {
                 String qualified_name = resolvedMethodDeclaration.getQualifiedName();
                 System.out.println("qualified_name");
                 System.out.println(qualified_name);
-                Type typeReturn = methodDeclaration.getType();
+                String typeReturn = methodDeclaration.getType().resolve().asReferenceType().getQualifiedName();
                 try {
                     ClassOrInterfaceDeclaration parentClass = (ClassOrInterfaceDeclaration) getAncestorNodeClassOrInterFaceDeclaration(methodDeclaration, 0);
                     if(parentClass != null) {
@@ -134,8 +134,11 @@ public class FirstLevelExtractor {
                     palist.add(p.toString());
 //                    System.out.println("Parameter: " + p.toString());
                 }
+//                System.out.println("exception");
                 for (ReferenceType t : thrownExceptions) {
-                    telist.add(t.asString());
+                    String exception = t.resolve().asReferenceType().getQualifiedName();
+//                    System.out.println(exception);
+                    telist.add(exception);
 //                    System.out.println("thrownExceptions： " + t.asString());
                 }
                 TempMethod tempMethod = new TempMethod();
@@ -148,12 +151,14 @@ public class FirstLevelExtractor {
                 tempMethod.setParamsTag(paramsTag);
                 tempMethod.setReturnValueDescription(ReturnValueDescription);
                 tempMethod.setThrowsTag(throwsTag);
+//                System.out.println("thrownExceptions");
+//                System.out.println(thrownExceptions);
                 tempMethod.setParameter(palist);
                 tempMethod.setParameterTypeList(parameterTypeList);
                 tempMethod.setThrowException(telist);
                 System.out.println("typeReturn.asClassOrInterfaceType().toString()");
-                System.out.println(typeReturn.toString());
-                tempMethod.setReturnValueType(typeReturn.toString());
+                System.out.println(typeReturn);
+                tempMethod.setReturnValueType(typeReturn);
                 methodModelSet.add(tempMethod);
 //                methodModelSet.add(tempMethod);
                 HashMap<String, String> method = classMethod.get(belongClassName);
