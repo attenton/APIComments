@@ -259,7 +259,8 @@ public class ClassExtractor {
     private static void startWrite() {
         System.out.println("-------start write--------");
 //        String temp = "C:/D/Document/Research/APIDrective/result/";
-        String temp = "C:\\D\\Document\\Research\\APIDrective\\android_result\\";
+//        String temp = "C:\\D\\Document\\Research\\APIDrective\\android_result\\";
+        String temp = "C:\\D\\Document\\Research\\APIDrective\\new_result\\";
         JSONWriter.writeModelListToJson(temp + "ClassOrInterfaceAndPackageRelations.json", relationModelList);
         relationModelList.clear();
         JSONWriter.writeModelListToJson(temp + "Packages.json", entityModelSet);

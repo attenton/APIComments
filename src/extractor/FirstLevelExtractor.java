@@ -63,7 +63,17 @@ public class FirstLevelExtractor {
                 String qualified_name = resolvedMethodDeclaration.getQualifiedName();
                 System.out.println("qualified_name");
                 System.out.println(qualified_name);
-                String typeReturn = methodDeclaration.getType().resolve().asReferenceType().getQualifiedName();
+                if(qualified_name.equals("java.awt.image.SampleModel.getSamples")){
+                    System.out.println("test");
+                }
+                String typeReturn = "";
+                if(methodDeclaration.getType().resolve().isPrimitive()) {
+                    typeReturn = methodDeclaration.getType().resolve().asPrimitive().getBoxTypeQName();
+                } else if (methodDeclaration.getType().resolve().isVoid()) {
+                    typeReturn = "var";
+                } else {
+                    typeReturn = methodDeclaration.getType().resolve().asReferenceType().getQualifiedName();
+                }
                 try {
                     ClassOrInterfaceDeclaration parentClass = (ClassOrInterfaceDeclaration) getAncestorNodeClassOrInterFaceDeclaration(methodDeclaration, 0);
                     if(parentClass != null) {
@@ -394,7 +404,8 @@ public class FirstLevelExtractor {
     private static void startWrite() {
         System.out.println("-------start write--------");
 //        String temp = "C:/D/Document/Research/APIDrective/result/";
-        String temp = "C:\\D\\Document\\Research\\APIDrective\\android_result\\";
+//        String temp = "C:\\D\\Document\\Research\\APIDrective\\android_result\\";
+        String temp = "C:\\D\\Document\\Research\\APIDrective\\new_result\\";
         JSONWriter.writeModelListToJson(temp + "MethodAll.json", methodModelSet);
         methodModelSet.clear();
         JSONWriter.writeModelListToJson(temp + "ClassAll.json", classModelSet);

@@ -25,7 +25,9 @@ public class Tools {
     public static final Integer Field_In_Class = 14;
 
 //    public static String ImportPath = "C:\\D\\Document\\Research\\APIDrective\\src";
-    public static String ImportPath = "C:\\D\\Document\\Research\\APIDrective\\android_sdk_source_code";
+    public static String ImportPath = "C:\\D\\Document\\Wechat\\WeChat Files\\care-open\\FileStorage\\File\\2020-04\\testsrc";
+//    public static String ImportPath = "C:\\D\\Document\\Research\\APIDrective\\new_src";
+//    public static String ImportPath = "C:\\D\\Document\\Research\\APIDrective\\android_sdk_source_code";
 //    public static String ImportPath = "C:\\D\\Document\\Research\\APIDrective\\src\\java\\util";
 
     public static List<String> packageNameContainer = new ArrayList<>();
